@@ -1,0 +1,7 @@
+taskmaster_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../warehouse/taskmaster.duckdb
+      threads: 4
