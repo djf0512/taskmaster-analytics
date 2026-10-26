@@ -10,3 +10,17 @@ models:
       - name: contestant_name
         data_tests:
           - not_null
+
+  - name: stg_tasks
+    description: One row per task, with episode and flag attributes.
+    columns:
+      - name: task_id
+        data_tests: [unique, not_null]
+
+  - name: stg_episodes
+    description: One row per episode, with air date and the source's per-contestant totals.
+    columns:
+      - name: episode_title
+        data_tests: [not_null]
+      - name: air_date
+        data_tests: [not_null]

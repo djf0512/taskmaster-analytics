@@ -5,3 +5,6 @@ sources:
     schema: raw
     tables:
       - name: scores_long
+      - name: tasks
+      - name: episodes
+
