@@ -1,6 +1,6 @@
 select
     task_id,
-    series            as series_code,
+    series            as series_name,
     episode_num       as episode_number,
     episode_title,
     task_num          as task_label,

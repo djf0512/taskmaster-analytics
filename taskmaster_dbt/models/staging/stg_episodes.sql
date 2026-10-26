@@ -1,5 +1,5 @@
 select
-    series            as series_code,
+    series            as series_name,
     episode_num       as episode_number,
     episode_title,
     air_date          as air_date_raw,
