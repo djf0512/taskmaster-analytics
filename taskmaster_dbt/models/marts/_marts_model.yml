@@ -91,6 +91,30 @@ models:
       - name: is_tiebreak
         description: Indicates whether the task was a tiebreaker (true/false).
 
+  - name: fct_series_score
+    description: One row per contestant per series. Keys and points only; descriptive attributes live in the dimension tables.
+    columns:
+      - name: contestant_key
+        description: A unique key for each contestant, generated from their name.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contestant')
+                field: contestant_key
+      - name: series_key
+        description: A unique key for each series, generated from its name.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_key
+      - name: total_points
+        description: The total number of points scored by the contestant in the series.
+      - name: is_winner
+        description: Indicates whether the contestant won the series (true/false).
+
   - name: fct_task_score
     description: One row per contestant per task. Keys and points only; descriptive attributes live in the dimension tables.
     columns:
@@ -128,3 +152,5 @@ models:
                 field: episode_key
       - name: points
         description: The number of points scored by the contestant for this task.
+      - name: tiebreak_results
+        description: The results of the tiebreaker for this task, if applicable.
