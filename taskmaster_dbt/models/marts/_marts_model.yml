@@ -118,9 +118,13 @@ models:
               arguments:
                 to: ref('dim_series')
                 field: series_key
-      - name: episode_number
-        description: The number of the episode in which the task appeared.
+      - name: episode_key
+        description: A unique key for each episode, generated from its series name and episode number.
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_episodes')
+                field: episode_key
       - name: points
         description: The number of points scored by the contestant for this task.
