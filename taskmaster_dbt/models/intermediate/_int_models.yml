@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: int_task_scores_included
+    description: Task scores with excluded series removed. The New Year Treat series are 
+          dropped because the source dataset assigns the same cast (contestants) to all 
+          episodes and tasks. Also, the episodes and tasks are the same across all new 
+          year treat series type, so the data is not useful for analysis.
+    columns:
+      - name: task_id
+        description: The original ID of the task from the source data.
+        data_tests:
+          - not_null
+      - name: series_name
+        description: The name of the series in which the task appeared.
+        data_tests:
+          - not_null
+      - name: episode_number
+        description: The number of the episode in which the task appeared.
+        data_tests:
+          - not_null
+      - name: episode_title
+        description: The title of the episode in which the task appeared.
+        data_tests:
+          - not_null
+      - name: task_label
+        description: The label (T for tiebreaker) or number of the task within the episode.
+        data_tests:
+          - not_null
+      - name: is_prize
+        description: Indicates whether the task was a prize task (true/false).
+      - name: is_live
+        description: Indicates whether the task was performed live (true/false).
+      - name: is_tiebreak
+        description: Indicates whether the task was a tiebreaker (true/false).
+      - name: contestant_name
+        description: The name of the contestant who performed the task.
