@@ -1,6 +1,36 @@
 version: 2
 
 models:
+  - name: dim_contestant
+    description: One row per contestant, with a unique key and cleaned name.
+    columns:
+      - name: contestant_key
+        description: A unique key for each contestant, generated from their name.
+        data_tests:
+          - unique
+          - not_null
+      - name: contestant_name
+        description: The name of the contestant.
+        data_tests:
+          - not_null
+      - name: contestant_first_name
+        description: The first name of the contestant.
+      - name: contestant_last_name
+        description: The last name of the contestant.
+
+  - name: dim_series
+    description: One row per series, with a unique key and cleaned name.
+    columns:
+      - name: series_key
+        description: A unique key for each series, generated from its name.
+        data_tests:
+          - unique
+          - not_null
+      - name: series_name
+        description: The name of the series.
+        data_tests:
+          - not_null
+
   - name: dim_task
     description: One row per task, with a unique key and cleaned attributes.
     columns:
@@ -36,19 +66,36 @@ models:
       - name: is_tiebreak
         description: Indicates whether the task was a tiebreaker (true/false).
 
-  - name: dim_contestant
-    description: One row per contestant, with a unique key and cleaned name.
+  - name: fct_task_score
+    description: One row per contestant per task. Keys and points only; descriptive attributes live in the dimension tables.
     columns:
       - name: contestant_key
         description: A unique key for each contestant, generated from their name.
         data_tests:
-          - unique
           - not_null
-      - name: contestant_name
-        description: The name of the contestant.
+          - relationships:
+              arguments:
+                to: ref('dim_contestant')
+                field: contestant_key
+      - name: task_id
+        description: The original ID of the task from the source data.
         data_tests:
           - not_null
-      - name: contestant_first_name
-        description: The first name of the contestant.
-      - name: contestant_last_name
-        description: The last name of the contestant.
+          - relationships:
+              arguments:
+                to: ref('dim_task')
+                field: task_id
+      - name: series_key
+        description: A unique key for each series, generated from its name.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_key
+      - name: episode_number
+        description: The number of the episode in which the task appeared.
+        data_tests:
+          - not_null
+      - name: points
+        description: The number of points scored by the contestant for this task.
