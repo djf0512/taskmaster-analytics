@@ -224,3 +224,4 @@ data/
 warehouse/
 *.duckdb
 .env 
+ingestion/query.py
