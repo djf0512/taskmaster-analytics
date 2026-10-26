@@ -8,4 +8,4 @@ select
     is_live,
     is_tiebreak,
     task_description
-from {{ ref('stg_tasks') }}
+from {{ ref('int_tasks_included') }}
