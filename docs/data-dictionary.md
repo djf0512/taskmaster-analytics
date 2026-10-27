@@ -1,53 +1,55 @@
 # Data Dictionary
 
-This document describes the purpose and intended grain of the analytical models in Taskmaster Analytics.
+This document describes the key analytical concepts and model grains used in Taskmaster Analytics. Model and column descriptions are maintained in the dbt YAML files and are available through the generated dbt documentation.
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Fact Table](#fact-table)
-- [Dimension Tables](#dimension-tables)
-- [Measures and Interpretation](#measures-and-interpretation)
+- [Model Overview](#model-overview)
+- [Key Analytical Concepts](#key-analytical-concepts)
+- [Measure Definitions](#measure-definitions)
 - [Known Limitations](#known-limitations)
 
-## Overview
+## Model Overview
 
-The data model separates task-level scoring records from descriptive dimensions. This structure supports analysis of scores by contestant, task, episode, and series.
+| Model | Grain | Purpose |
+|---|---|---|
+| `fct_task_score` | One row per contestant per task | Analyzes points awarded for individual tasks. |
+| `fct_episode_score` | One row per contestant per episode | Compares task-level points with final episode scores. |
+| `fct_series_score` | One row per contestant per series | Supports analysis of overall series performance. |
+| `dim_contestant` | One row per contestant | Provides contestant-level context. |
+| `dim_task` | One row per task | Provides task-level context. |
+| `dim_episodes` | One row per episode | Provides episode-level context. |
+| `dim_series` | One row per series | Provides series-level context. |
 
-## Fact Table
+*Update this table as models change. The model names and grains should match the actual dbt project.*
 
-### `fct_task_score`
+## Key Analytical Concepts
 
-**Intended grain:** One row per contestant per task.
+### Task-level scoring
 
-This table contains task-level scores associated with contestants and tasks. It is designed to support comparisons of performance at the task level.
+Task scores represent points attributed to individual tasks. They can be aggregated by contestant, episode, or series, provided the relevant relationships and scoring rules are respected.
 
-Document the actual columns from the current model here, including their meanings, data types, and whether they can contain nulls.
+### Episode-level scoring
 
-## Dimension Tables
+Episode totals represent the final scores recorded for contestants in an episode. These totals may include points that are not attributed to individual tasks.
 
-| Model | Purpose |
-|---|---|
-| `dim_contestant` | Identifies contestants represented in the analytical data. |
-| `dim_task` | Describes individual tasks. |
-| `dim_episodes` | Describes episodes associated with tasks. |
-| `dim_series` | Describes the series associated with the analytical records. |
+### Series-level performance
 
-Add each model's actual columns and key definitions after confirming them against the current SQL and YAML files.
+Series-level performance summarizes contestant results across a series. The totals and rankings depend on which scoring measure is used and how the source data represents final scores.
 
-## Measures and Interpretation
+## Measure Definitions
 
-Task scores and episode totals represent different measures.
-
-- **Task scores** are scores attributed to individual tasks.
-- **Episode totals** represent final scores recorded for an episode and may include bonus points not attributed to individual tasks.
-
-Consequently, summing task scores does not necessarily reproduce an episode's final score. These measures should not be treated as interchangeable.
-
-See [Episode Totals vs. Task Scores](data-quality/episode-vs-task-scores.md) for the investigation and modeling implications.
+| Measure | Definition | Important consideration |
+|---|---|---|
+| Task points | Sum of scores attributed to individual tasks. | May not equal the final episode score. |
+| Episode total points | Final score recorded for a contestant in an episode. | May include points not represented in individual task scores. |
+| Unattributed points | Difference between episode total points and task points. | A difference does not necessarily mean an error or confirm that the points are bonuses. |
+| Series total points | Aggregate score used to summarize a contestant's performance across a series. | Document the exact source and calculation used by the final model. |
 
 ## Known Limitations
 
-- New Year Treat records are excluded from the current analytical models under the project's series-inclusion rule.
-- Episode-level final scores are not interchangeable with task-level scores.
-- Model definitions and column-level descriptions should be kept synchronized with the actual dbt models.
+- New Year Treat specials are excluded from the current analytical models.
+- Task-score sums may differ from final episode totals.
+- The meaning of any difference between task scores and episode totals should be validated before interpreting it as bonus points.
+
+See the [data quality documentation](data-quality/README.md) for the investigations and modeling decisions behind these limitations.
