@@ -1,6 +1,42 @@
 version: 2
 
 models:
+  - name: int_episodes_included
+    description: Episodes with excluded series removed. The New Year Treat series are 
+          dropped because the source dataset assigns the same cast (contestants) to all 
+          episodes and tasks. Also, the episodes and tasks are the same across all new 
+          year treat series type, so the data is not useful for analysis.
+    columns:
+      - name: series_name
+        description: The name of the series in which the episode appeared.
+        data_tests:
+          - not_null
+      - name: episode_number
+        description: The number of the episode within the series.
+        data_tests:
+          - not_null
+      - name: episode_title
+        description: The title of the episode.
+        data_tests:
+          - not_null
+
+  - name: int_series_included
+    description: Series with excluded series removed. The New Year Treat series are 
+          dropped because the source dataset assigns the same cast (contestants) to all 
+          episodes and tasks. Also, the episodes and tasks are the same across all new 
+          year treat series type, so the data is not useful for analysis.
+    columns:
+      - name: series_name
+        description: The name of the series.
+        data_tests:
+          - not_null
+      - name: series_kind
+        description: The kind of series (e.g., "regular", "special", etc.).
+      - name: series_air_date_range
+        description: The range of air dates for the series.
+      - name: number_of_episodes
+        description: The total number of episodes in the series.
+        
   - name: int_task_scores_included
     description: Task scores with excluded series removed. The New Year Treat series are 
           dropped because the source dataset assigns the same cast (contestants) to all 
@@ -70,22 +106,3 @@ models:
         description: Indicates whether the task was a tiebreaker (true/false).
       - name: task_description
         description: A brief description of what the task entailed.
-
-  - name: int_episodes_included
-    description: Episodes with excluded series removed. The New Year Treat series are 
-          dropped because the source dataset assigns the same cast (contestants) to all 
-          episodes and tasks. Also, the episodes and tasks are the same across all new 
-          year treat series type, so the data is not useful for analysis.
-    columns:
-      - name: series_name
-        description: The name of the series in which the episode appeared.
-        data_tests:
-          - not_null
-      - name: episode_number
-        description: The number of the episode within the series.
-        data_tests:
-          - not_null
-      - name: episode_title
-        description: The title of the episode.
-        data_tests:
-          - not_null

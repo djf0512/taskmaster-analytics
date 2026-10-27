@@ -4,7 +4,7 @@ con = duckdb.connect("warehouse/taskmaster.duckdb")
 con.execute("create schema if not exists raw")
 
 base = "data/raw/taskmaster-uk-scores/data"
-for table in ["scores_long", "tasks", "episodes"]:
+for table in ["scores_long", "tasks", "episodes", "series"]:
     con.execute(f"""
         create or replace table raw.{table} as
         select * from read_csv_auto('{base}/{table}.csv')

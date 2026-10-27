@@ -7,4 +7,5 @@ sources:
       - name: scores_long
       - name: tasks
       - name: episodes
+      - name: series
 
