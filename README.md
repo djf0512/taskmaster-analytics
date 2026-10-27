@@ -62,11 +62,11 @@ See the [data quality index](docs/data-quality/README.md) for an overview.
 
 ## Repository Structure
 
-- `data/`: Local source data
 - `ingestion/`: Python ingestion code
-- `taskmaster_dbt/`: dbt models, tests, and macros
-- `docs/`: Project documentation and data-quality investigations
-- `warehouse/`: Local DuckDB database
+- `taskmaster_dbt/`: dbt models, macros, tests, and configuration
+- `docs/`: Project documentation, data dictionary, and data-quality investigations
+- `data/`: Local source data, obtained during setup; not committed to the repository
+- `warehouse/`: Local DuckDB database; not committed to the repository
 
 Exact directory names should match the current repository.
 
