@@ -40,7 +40,7 @@ models:
         description: The date on which the episode aired.
 
   - name: dim_series
-    description: One row per series, with a unique key and cleaned name.
+    description: One row per series (known as seasons in the States), with a unique key and cleaned name.
     columns:
       - name: series_key
         description: A unique key for each series, generated from its name.

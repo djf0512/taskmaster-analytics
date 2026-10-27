@@ -8,7 +8,7 @@ models:
           year treat series type, so the data is not useful for analysis.
     columns:
       - name: series_name
-        description: The name of the series in which the episode appeared.
+        description: The name of the series (known as seasons in the States) in which the episode appeared.
         data_tests:
           - not_null
       - name: episode_number
