@@ -32,7 +32,8 @@ Each dbt layer builds into its own schema: `staging`, `intermediate`, `marts`. M
 | `fct_episode_points` | one row per contestant per episode |
 | `fct_series_points` | one row per contestant per series |
 | `dim_contestant`, `dim_episode`, `dim_series`, `dim_task` | one row per contestant, episode, series, task |
-Definitions, keys, and rules: [data dictionary](docs/data-dictionary.md) and [model design](docs/model-design.md).
+
+Definitions, diagrams, keys, and rules: [data dictionary](docs/data-dictionary.md) and [model design](docs/model-design.md).
 
 ## Data quality findings
 

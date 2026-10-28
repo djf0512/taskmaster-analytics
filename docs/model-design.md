@@ -12,6 +12,72 @@ Why the models look the way they do. Definitions and grains are in the [data dic
 
 Rule: a business rule lives in exactly one place. The series exclusion is one macro (`is_excluded_series`) used only in the intermediate layer, so no mart repeats it.
 
+## Entity relationships
+
+```mermaid
+erDiagram
+    dim_series ||--o{ dim_episode : contains
+    dim_series ||--o{ fct_series_points : has
+    dim_episode ||--o{ fct_episode_points : has
+    dim_episode ||--o{ fct_task_points : has
+    dim_contestant ||--o{ fct_series_points : earns
+    dim_contestant ||--o{ fct_episode_points : earns
+    dim_contestant ||--o{ fct_task_points : earns
+    dim_task ||--o{ fct_task_points : scored_in
+
+    dim_series {
+        string series_key PK
+        string series_name
+        string series_type
+        int series_number
+        int number_of_episodes
+    }
+    dim_episode {
+        string episode_key PK
+        string series_key FK
+        int episode_number
+        string episode_title
+        date air_date
+    }
+    dim_contestant {
+        string contestant_key PK
+        string contestant_name
+    }
+    dim_task {
+        int task_id PK
+        string series_name
+        int episode_number
+        string task_label
+        bool is_prize
+        bool is_live
+        bool is_tiebreak
+    }
+    fct_task_points {
+        string contestant_key FK
+        int task_id FK
+        string episode_key FK
+        int task_points
+        int is_disqualified
+        int tiebreak_results
+    }
+    fct_episode_points {
+        string contestant_key FK
+        string episode_key FK
+        int episode_points
+        int episode_task_points
+        int episode_adjustment_points
+    }
+    fct_series_points {
+        string contestant_key FK
+        string series_key FK
+        int series_points
+        int final_rank
+        bool is_winner
+    }
+```
+
+The diagram shows the main columns only. Every fact table also carries `series_key`, which is a shortcut to `dim_series`. The three fact tables are also built on each other: `fct_episode_points` is rolled up from `fct_task_points`, and `fct_series_points` from `fct_episode_points`. Those links are lineage, not foreign keys, so the diagram doesn't draw them.
+
 ## Decisions
 
 ### Contestant identity
