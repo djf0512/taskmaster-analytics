@@ -10,7 +10,7 @@ with totals as (
         sum(tiebreak_won) as tiebreaks_won,
         sum(tiebreak_played) as tiebreaks_played
     from {{ ref('fct_episode_points') }}
-    group by series_key, contestant_key
+    group by series_key, contestant_key, contestant_seat_position
 
 )
 , ranked as (
