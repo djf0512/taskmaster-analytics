@@ -225,3 +225,4 @@ warehouse/
 *.duckdb
 .env 
 ingestion/query.py
+.user.yml

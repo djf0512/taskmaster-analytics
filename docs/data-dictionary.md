@@ -38,7 +38,7 @@ Each key is built by one macro in `taskmaster_dbt/macros/`, so dimensions and fa
 
 | Measure | Definition | Note |
 |---|---|---|
-| Task points (`task_points`) | Points awarded to a contestant for one normal task | If not a tiebreaker task and value is Null means the contestant was disqualified / DNF |
+| Task points (`task_points`) | Points awarded to a contestant for one normal task | Null on a normal task means the contestant was disqualified or DNF from it. It is not a zero. |
 | Tiebreak result (`tiebreak_results`) | 1 if the contestant won a tiebreak task, 0 if they lost, null otherwise | A result, not a score. Never added to points. |
 | Episode points (`episode_points`) | Official points for a contestant in an episode, as printed in the broadcast tables | Comes from the episodes file, not from summing tasks. |
 | Episode task points (`episode_task_points`) | Sum of the contestant's task points in the episode | Excludes tiebreak tasks. Includes the prize task. |

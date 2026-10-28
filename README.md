@@ -40,7 +40,6 @@ Definitions, keys, and rules: [data dictionary](docs/data-dictionary.md) and [mo
 |---|---|
 | The six New Year Treat series are identical copies of one cast and one set of tasks | [Excluded](docs/data-quality/new-year-treat-series.md) |
 | Official episode totals differ from summed task scores in about 24% of contestant-episodes | [Both kept, difference modeled as adjustment points](docs/data-quality/episode-vs-task-scores.md) |
-| 274 task rows have no score, and scores range from -5 to 15 | [Nulls kept as null, never as zero](docs/data-quality/task-score-values.md) |
 
 See the [data quality index](docs/data-quality/README.md).
 
