@@ -45,8 +45,8 @@ erDiagram
     }
     dim_task {
         int task_id PK
-        string series_name
-        int episode_number
+        string series_key FK
+        string episode_key FK
         string task_label
         bool is_prize
         bool is_live

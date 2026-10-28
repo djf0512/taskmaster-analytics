@@ -1,8 +1,7 @@
 select
     task_id,
-    series_name,
-    episode_number,
-    episode_title,
+    {{ series_key('series_name') }} as series_key,
+    {{ episode_key('series_name', 'episode_number') }} as episode_key,
     task_label,
     is_prize,
     is_live,

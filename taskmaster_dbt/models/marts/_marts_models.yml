@@ -60,12 +60,20 @@ models:
       - name: task_id
         description: Task ID from the source data.
         data_tests: [unique, not_null]
-      - name: series_name
-        data_tests: [not_null]
-      - name: episode_number
-        data_tests: [not_null]
-      - name: episode_title
-        data_tests: [not_null]
+      - name: series_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_key
+      - name: episode_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_episode')
+                field: episode_key
       - name: task_label
         description: Task number within the episode, or T for a tiebreak task.
         data_tests: [not_null]
