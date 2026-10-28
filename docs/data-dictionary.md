@@ -41,10 +41,10 @@ Series-level performance summarizes contestant results across a series. The tota
 
 | Measure | Definition | Important consideration |
 |---|---|---|
-| Task points | Sum of scores attributed to individual tasks. | May not equal the final episode score. |
-| Episode total points | Final score recorded for a contestant in an episode. | May include points not represented in individual task scores. |
-| Unattributed points | Difference between episode total points and task points. | A difference does not necessarily mean an error or confirm that the points are bonuses. |
-| Series total points | Aggregate score used to summarize a contestant's performance across a series. | Document the exact source and calculation used by the final model. |
+| Task points | Points awarded to a contestant for an individual task. | May not equal the final episode score. |
+| Episode points | Final score recorded for a contestant in an episode. | Includes task points and any additional points awarded outside individual tasks. |
+| Episode bonus points | The difference between episode points and the sum of task points for that contestant in that episode. |  |
+| Series points | The sum of episode points for a contestant across a series (called a season in the US). | Includes episode bonus points. |
 
 ## Known Limitations
 

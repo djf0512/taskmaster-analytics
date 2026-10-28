@@ -15,7 +15,7 @@ models:
       - name: series_name
         data_tests: [unique, not_null]
 
-  - name: stg_task_scores
+  - name: stg_task_points
     description: One row per contestant per task, cleaned from the raw scores file.
     columns:
       - name: task_id
