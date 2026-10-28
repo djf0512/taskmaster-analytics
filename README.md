@@ -1,87 +1,76 @@
 # Taskmaster Analytics
+An end-to-end analytics engineering project on the UK TV show *Taskmaster*: a Python loader, a DuckDB warehouse, and a tested, documented dbt star schema covering tasks, episodes, and series.
 
-An analytics engineering project exploring contestant performance and task scoring in the UK television series *Taskmaster*. The project transforms publicly available scoring data into tested, documented analytical models using Python, DuckDB, and dbt.
+## Status
+- [x] Raw load of the scoring data, with load timestamp and source commit on every table
+- [x] dbt project: 4 staging, 5 intermediate, 4 dimension and 3 fact models, 88 data tests
+- [x] Documented data-quality findings and modeling decisions
+- [ ] Wikipedia pageviews, YouTube snapshots, and Wikidata attributes
+- [ ] Orchestration and CI
+- [ ] Semantic layer, dashboard, and written findings
 
-## Table of Contents
+## Architecture
 
-- [Project Goals](#project-goals)
-- [Tech Stack](#tech-stack)
-- [Data Pipeline](#data-pipeline)
-- [Data Models](#data-models)
-- [Data Quality](#data-quality)
-- [Repository Structure](#repository-structure)
-- [Current Status](#current-status)
-- [Future Work](#future-work)
-- [Data Sources](#data-sources)
+```mermaid
+flowchart LR
+    A[Source CSVs<br/>taskmaster-uk-scores] --> B[Python loader]
+    B --> C[(DuckDB<br/>raw)]
+    C --> D[dbt staging]
+    D --> E[dbt intermediate]
+    E --> F[dbt marts]
+    G[YouTube, Wikipedia, Wikidata APIs<br/>planned] -.-> B
+    F --> H[Semantic layer and dashboard<br/>planned]
+```
 
-## Project Goals
+Each dbt layer builds into its own schema: `staging`, `intermediate`, `marts`. Marts never read staging directly, and excluded series are removed once, in the intermediate layer.
 
-- Build a reproducible data pipeline from raw source data to analytical models.
-- Apply analytics engineering practices, including modular SQL transformations, testing, and documentation.
-- Explore contestant performance and scoring patterns across tasks, episodes, and series.
-- Establish a foundation for combining scoring data with public audience engagement data.
+## Data model
 
-## Tech Stack
+| Table | Grain |
+|---|---|
+| `fct_task_points` | one row per contestant per task |
+| `fct_episode_points` | one row per contestant per episode |
+| `fct_series_points` | one row per contestant per series |
+| `dim_contestant`, `dim_episode`, `dim_series`, `dim_task` | one row per contestant, episode, series, task |
+Definitions, keys, and rules: [data dictionary](docs/data-dictionary.md) and [model design](docs/model-design.md).
 
-- **Python:** Data ingestion and pipeline support
-- **DuckDB:** Local analytical database
-- **dbt Core:** SQL transformations, testing, and documentation
-- **SQL:** Data modeling and analysis
-- **Git/GitHub:** Version control and project documentation
+## Data quality findings
 
-## Data Pipeline
+| Finding | Decision |
+|---|---|
+| The six New Year Treat series are identical copies of one cast and one set of tasks | [Excluded](docs/data-quality/new-year-treat-series.md) |
+| Official episode totals differ from summed task scores in about 24% of contestant-episodes | [Both kept, difference modeled as adjustment points](docs/data-quality/episode-vs-task-scores.md) |
+| 274 task rows have no score, and scores range from -5 to 15 | [Nulls kept as null, never as zero](docs/data-quality/task-score-values.md) |
 
-The pipeline follows a layered approach:
+See the [data quality index](docs/data-quality/README.md).
 
-1. **Raw data:** Obtain the source scoring data.
-2. **Staging:** Standardize and prepare source records for transformation.
-3. **Intermediate models:** Apply inclusion rules and prepare data for analysis.
-4. **Marts:** Build fact and dimension tables for analytical use.
+## Quickstart
 
-## Data Models
+Full instructions, including Windows setup and troubleshooting, are in [docs/setup.md](docs/setup.md).
 
-The analytical layer includes:
+```bash
+git clone https://github.com/djf0512/taskmaster-analytics.git
+cd taskmaster-analytics
+python -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+git clone https://github.com/silverdavi/taskmaster-uk-scores.git data/raw/taskmaster-uk-scores
+python ingestion/load_scores.py
+cd taskmaster_dbt && dbt build
+```
 
-- **`fct_task_score`:** Task-level scoring records, with one row per contestant per task.
-- **`fct_series_score`:** Series-level scoring records, with one row per contestant per series.
-- **`dim_contestant`:** Contestant dimension.
-- **`dim_task`:** Task dimension.
-- **`dim_episodes`:** Episode dimension.
-- **`dim_series`:** Series dimension.
+DuckDB and dbt versions are pinned in `requirements.txt`. The DuckDB command-line client must be at least as new as the pinned Python package, or it cannot open the database file.
 
-See the [dbt project documentation](taskmaster_dbt/README.md) for model organization and setup, and the [data dictionary](docs/data-dictionary.md) for definitions and grain.
+## Repository layout
 
-## Data Quality
+```
+ingestion/        Python loader (raw layer)
+taskmaster_dbt/   dbt project: models, macros, tests
+docs/             setup, model design, data dictionary, data-quality findings
+data/, warehouse/ local source data and DuckDB file (not committed)
+```
 
-Source data requires some modeling decisions before it can be used consistently for analysis.
+## Data source and license
 
-- [New Year Treat series](docs/data-quality/new-year-treat-series.md): documents the decision to exclude these records from the current analytical models.
-- [Episode totals vs. task scores](docs/data-quality/episode-vs-task-scores.md): explains why episode totals and the sum of individual task scores can differ.
+Scoring data comes from [silverdavi/taskmaster-uk-scores](https://github.com/silverdavi/taskmaster-uk-scores), licensed CC BY-SA 4.0 and compiled from the Taskmaster fan wiki. The data is not redistributed in this repository. 
 
-See the [data quality index](docs/data-quality/README.md) for an overview.
-
-## Repository Structure
-
-- `ingestion/`: Python ingestion code
-- `taskmaster_dbt/`: dbt models, macros, tests, and configuration
-- `docs/`: Project documentation, data dictionary, and data-quality investigations
-- `data/`: Local source data, obtained during setup; not committed to the repository
-- `warehouse/`: Local DuckDB database; not committed to the repository
-
-Exact directory names should match the current repository.
-
-## Current Status
-
-The initial pipeline and analytical models are under development. The current focus is on data modeling, data quality, reproducibility, and documentation.
-
-## Future Work
-
-- Expand analysis of contestant and task performance.
-- Incorporate public audience engagement data from sources such as Wikipedia and YouTube, subject to API availability and data limitations.
-- Develop analytical outputs that connect task-level performance with broader audience interest.
-
-## Data Sources
-
-Scoring data is sourced from [silver­davi/taskmaster-uk-scores](https://github.com/silverdavi/taskmaster-uk-scores).
-
-Source data remains subject to its original attribution and licensing terms. Refer to the source repository for details.
+Taskmaster is a trademark of its owners. This is an independent fan project and is not affiliated with or endorsed by the show or its producers.

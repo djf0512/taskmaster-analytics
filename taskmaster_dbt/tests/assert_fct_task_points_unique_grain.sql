@@ -1,3 +1,4 @@
+-- returns contestants that appear more than once for the same task
 select
     contestant_key,
     task_id,

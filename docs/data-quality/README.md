@@ -1,24 +1,17 @@
 # Data Quality
 
-This directory documents source-data findings, modeling decisions, and limitations that affect how the Taskmaster Analytics models should be interpreted.
+Findings about the source data and the modeling decisions they led to. Each finding has its own page with the evidence, so the decision can be checked.
 
-## Table of Contents
-
-- [Findings](#findings)
-- [Documentation Guidelines](#documentation-guidelines)
-
-## Findings
-
-| Finding | Modeling decision | Details |
+| Finding | Decision | Details |
 |---|---|---|
-| New Year Treat records | Excluded from current analytical models | [Read investigation](new-year-treat-series.md) |
-| Episode totals differ from summed task scores | Treat episode totals and task scores as separate measures | [Read investigation](episode-vs-task-scores.md) |
+| New Year Treat series repeat one cast and one set of tasks six times | Excluded from the models | [New Year Treat series](new-year-treat-series.md) |
+| Official episode totals differ from summed task scores | Both kept; difference modeled as adjustment points | [Episode totals vs. task scores](episode-vs-task-scores.md) |
 
-## Documentation Guidelines
+## How findings are documented
 
-- Record small implementation details directly in SQL comments or model YAML.
-- Describe measure definitions and interpretation in the data dictionary.
-- Use a separate investigation document when a finding needs evidence, examples, reasoning, or an explanation of tradeoffs.
-- Update this index when adding a new investigation.
+- Small implementation details go in SQL comments or model YAML.
+- Definitions go in the [data dictionary](../data-dictionary.md).
+- A finding that needs evidence, examples, or a tradeoff gets its own page here, with the query that reproduces it and the source commit it was checked against.
+- Add new pages to the table above.
 
-These documents describe observed source-data behavior and project modeling decisions. An observed difference does not automatically mean the source data is incorrect.
+An observed difference between two measures is not automatically an error in the source. Pages say which it is, and how sure the conclusion is.

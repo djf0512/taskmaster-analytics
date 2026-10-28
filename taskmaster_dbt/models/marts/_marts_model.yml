@@ -2,28 +2,21 @@ version: 2
 
 models:
   - name: dim_contestant
-    description: One row per contestant, with a unique key and cleaned name.
+    description: One row per contestant. The key is a hash of the normalized name because the source has no contestant ID.
     columns:
       - name: contestant_key
-        description: A unique key for each contestant, generated from their name.
-        data_tests:
-          - unique
-          - not_null
+        description: md5 of the lower-cased, trimmed contestant name.
+        data_tests: [unique, not_null]
       - name: contestant_name
-        description: The name of the contestant.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
 
-  - name: dim_episodes
-    description: One row per episode, with a unique key and cleaned attributes. 
+  - name: dim_episode
+    description: One row per episode, with its air date.
     columns:
       - name: episode_key
-        description: A unique key for each episode, generated from its series name and episode number.
-        data_tests:
-          - unique
-          - not_null
+        description: md5 of series name and episode number.
+        data_tests: [unique, not_null]
       - name: series_key
-        description: A unique key for each series, generated from its name.
         data_tests:
           - not_null
           - relationships:
@@ -31,128 +24,63 @@ models:
                 to: ref('dim_series')
                 field: series_key
       - name: series_name
-        description: The name of the series in which the episode appeared.
+        description: Name of the series the episode belongs to.
       - name: episode_number
-        description: The number of the episode within the series.
+        description: Number of the episode within the series.
       - name: episode_title
-        description: The title of the episode.
       - name: air_date
-        description: The date on which the episode aired.
+        description: Date the episode first aired.
+        data_tests: [not_null]
 
   - name: dim_series
-    description: One row per series (known as seasons in the States), with a unique key and cleaned name.
+    description: One row per included series (called a season in the US).
     columns:
       - name: series_key
-        description: A unique key for each series, generated from its name.
-        data_tests:
-          - unique
-          - not_null
+        description: md5 of the lower-cased, trimmed series name.
+        data_tests: [unique, not_null]
       - name: series_name
-        description: The name of the series.
+        data_tests: [unique, not_null]
+      - name: series_type
+        description: Derived from the name (regular or champion_of_champions). 'unknown' means a new naming pattern needs handling.
         data_tests:
           - not_null
+          - accepted_values:
+              arguments:
+                values: ['regular', 'champion_of_champions']
+      - name: series_number
+        description: Trailing number in the series name. Only meaningful within a series_type.
+        data_tests: [not_null]
+      - name: series_air_date_range
+        description: Air dates as text, from the source.
+      - name: number_of_episodes
 
   - name: dim_task
-    description: One row per task, with a unique key and cleaned attributes.
+    description: One row per task, using the source's task_id as the key.
     columns:
       - name: task_id
-        description: The original ID of the task from the source data.
-        data_tests:
-          - not_null
+        description: Task ID from the source data.
+        data_tests: [unique, not_null]
       - name: series_name
-        description: The name of the series in which the task appeared.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: episode_number
-        description: The number of the episode in which the task appeared.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: episode_title
-        description: The title of the episode in which the task appeared.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: task_label
-        description: The label or number of the task within the episode.
-        data_tests:
-          - not_null
+        description: Task number within the episode, or T for a tiebreak task.
+        data_tests: [not_null]
       - name: is_prize
-        description: Indicates whether the task was a prize task (true/false).
+        description: True for the prize task, which opens the episode and counts toward totals.
       - name: is_live
-        description: Indicates whether the task was performed live (true/false).
+        description: True if the task was performed live.
       - name: is_tiebreak
-        description: Indicates whether the task was a tiebreaker (true/false).
-
-  - name: fct_episode_points
-    description: One row per contestant per episode. Keys and points only; descriptive attributes live in the dimension tables.
-    columns:
-      - name: contestant_key
-        description: A unique key for each contestant, generated from their name.
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_contestant')
-                field: contestant_key
-      - name: series_key
-        description: A unique key for each series, generated from its name.
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_series')
-                field: series_key
-      - name: episode_key
-        description: A unique key for each episode, generated from its series name and episode number.
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_episodes')
-                field: episode_key
-      - name: episode_points
-        description: The total number of points (task points + bonus points) scored by the contestant in the episode.
-      - name: episode_task_points
-        description: The total number of task points scored by the contestant in the episode.
-      - name: episode_bonus_points
-        description: The total number of bonus points scored by the contestant in the episode.
-      - name: tiebreak_won
-        description: Indicates whether the contestant won a tiebreaker in the episode (1/0).
-      - name: tiebreak_played
-        description: Indicates whether the contestant played a tiebreaker in the episode (1).
-
-  - name: fct_series_points
-    description: One row per contestant per series. Keys and points only; descriptive attributes live in the dimension tables.
-    columns:
-      - name: contestant_key
-        description: A unique key for each contestant, generated from their name.
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_contestant')
-                field: contestant_key
-      - name: series_key
-        description: A unique key for each series, generated from its name.
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('dim_series')
-                field: series_key
-      - name: series_points
-        description: The total number of points (task points + bonus points) scored by the contestant in the series.
-      - name: series_task_points
-        description: The total number of task points scored by the contestant in the series.
-      - name: series_bonus_points
-        description: The total number of bonus points scored by the contestant in the series.
-      - name: is_winner
-        description: Indicates whether the contestant won the series (true/false).
+        description: True for a tiebreak task. Tiebreak results are not part of episode totals.
+      - name: task_description
 
   - name: fct_task_points
-    description: One row per contestant per task. Keys and points only; descriptive attributes live in the dimension tables.
+    description: One row per contestant per task. Keys and measures only; descriptive attributes live in the dimensions.
     columns:
       - name: contestant_key
-        description: A unique key for each contestant, generated from their name.
         data_tests:
           - not_null
           - relationships:
@@ -160,7 +88,6 @@ models:
                 to: ref('dim_contestant')
                 field: contestant_key
       - name: task_id
-        description: The original ID of the task from the source data.
         data_tests:
           - not_null
           - relationships:
@@ -168,7 +95,6 @@ models:
                 to: ref('dim_task')
                 field: task_id
       - name: series_key
-        description: A unique key for each series, generated from its name.
         data_tests:
           - not_null
           - relationships:
@@ -176,14 +102,94 @@ models:
                 to: ref('dim_series')
                 field: series_key
       - name: episode_key
-        description: A unique key for each episode, generated from its series name and episode number.
         data_tests:
           - not_null
           - relationships:
               arguments:
-                to: ref('dim_episodes')
+                to: ref('dim_episode')
                 field: episode_key
       - name: task_points
-        description: The number of points scored by the contestant for this task.
+        description: Points scored for the task. Null on tiebreak rows.
+      - name: is_disqualified
+        description: 1 if the contestant was disqualified from the task, 0 if not disqualified, null if tiebreak
       - name: tiebreak_results
-        description: The results of the tiebreaker for this task, if applicable. If null, the contestant did not have a tiebreaker. If 0, they lost the tiebreaker. If 1, they won the tiebreaker.
+        description: "{{ doc('tiebreak_result') }}"
+
+  - name: fct_episode_points
+    description: >
+      One row per contestant per episode. Official episode points (as printed in the broadcast
+      tables) next to the sum of that contestant's task points. Built on fct_task_points.
+    columns:
+      - name: contestant_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contestant')
+                field: contestant_key
+      - name: series_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_key
+      - name: episode_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_episode')
+                field: episode_key
+      - name: contestant_seat_position
+        description: Seat (1 to 5) in the source's seat-order lists.
+      - name: episode_points
+        description: Official points for the contestant in the episode.
+        data_tests: [not_null]
+      - name: episode_task_points
+        description: Sum of the contestant's task points in the episode, excluding tiebreak tasks.
+        data_tests: [not_null]
+      - name: episode_adjustment_points
+        description: "{{ doc('adjustment_points') }}"
+        data_tests: [not_null]
+      - name: tiebreak_won
+        description: Tiebreaks won in the episode. Null if the contestant took part in none.
+      - name: tiebreak_played
+        description: Tiebreaks the contestant took part in during the episode.
+
+  - name: fct_series_points
+    description: >
+      One row per contestant per series, rolled up from fct_episode_points. A tie for first is
+      broken by the finale tiebreak only.
+    columns:
+      - name: contestant_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contestant')
+                field: contestant_key
+      - name: series_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_key
+      - name: series_points
+        description: Sum of official episode points, including adjustments.
+        data_tests: [not_null]
+      - name: series_task_points
+        description: Sum of task points across the series.
+      - name: series_adjustment_points
+        description: "{{ doc('adjustment_points') }}"
+      - name: tiebreaks_won
+        description: Tiebreaks won anywhere in the series. Informational; not used for ranking.
+      - name: tiebreaks_played
+      - name: finale_tiebreak_won
+        description: 1 if the contestant won a tiebreak in the last episode of the series, otherwise 0. Used to rank ties.
+      - name: final_rank
+        description: Rank by series points, then finale tiebreak. Contestants still tied after that share a rank.
+        data_tests: [not_null]
+      - name: is_winner
+        description: True for rank 1. A test requires exactly one winner per series.

@@ -2,129 +2,75 @@ version: 2
 
 models:
   - name: int_episodes_included
-    description: Episodes with excluded series removed. The New Year Treat series are 
-          dropped because the source dataset assigns the same cast (contestants) to all 
-          episodes and tasks. Also, the episodes and tasks are the same across all new 
-          year treat series type, so the data is not useful for analysis.
+    description: "Episodes with excluded series removed. {{ doc('excluded_series') }}"
     columns:
       - name: series_name
-        description: The name of the series (known as seasons in the States) in which the episode appeared.
-        data_tests:
-          - not_null
+        description: Name of the series (called a season in the US).
+        data_tests: [not_null]
       - name: episode_number
-        description: The number of the episode within the series.
-        data_tests:
-          - not_null
+        description: Number of the episode within the series.
+        data_tests: [not_null]
       - name: episode_title
-        description: The title of the episode.
-        data_tests:
-          - not_null
-
-  - name: int_episode_contestant_points_included
-    description: Contestant points with excluded series removed as it reads from int_episodes_included.
-    columns:
-      - name: series_name
-        description: The name of the series (known as seasons in the States) in which the episode appeared.
-        data_tests:
-          - not_null
-      - name: episode_number
-        description: The number of the episode within the series.
-        data_tests:
-          - not_null
-      - name: episode_title
-        description: The title of the episode.
-        data_tests:
-          - not_null
-      - name: contestant_name
-        description: The name of the contestant.
-        data_tests:
-          - not_null
-      - name: episode_points
-        description: Final score recorded for a contestant in an episode. Includes task points and any additional points awarded outside individual tasks.
+        description: Title of the episode.
+        data_tests: [not_null]
 
   - name: int_series_included
-    description: Series with excluded series removed. The New Year Treat series are 
-          dropped because the source dataset assigns the same cast (contestants) to all 
-          episodes and tasks. Also, the episodes and tasks are the same across all new 
-          year treat series type, so the data is not useful for analysis.
+    description: "Series with excluded series removed. {{ doc('excluded_series') }}"
     columns:
       - name: series_name
-        description: The name of the series.
-        data_tests:
-          - not_null
+        data_tests: [unique, not_null]
       - name: series_kind
-        description: The kind of series (e.g., "regular", "special", etc.).
-      - name: series_air_date_range
-        description: The range of air dates for the series.
-      - name: number_of_episodes
-        description: The total number of episodes in the series.
-        
-  - name: int_task_points_included
-    description: Task points with excluded series removed. The New Year Treat series are 
-          dropped because the source dataset assigns the same cast (contestants) to all 
-          episodes and tasks. Also, the episodes and tasks are the same across all new 
-          year treat series type, so the data is not useful for analysis.
-    columns:
-      - name: task_id
-        description: The original ID of the task from the source data.
-        data_tests:
-          - not_null
-      - name: series_name
-        description: The name of the series in which the task appeared.
-        data_tests:
-          - not_null
-      - name: episode_number
-        description: The number of the episode in which the task appeared.
-        data_tests:
-          - not_null
-      - name: episode_title
-        description: The title of the episode in which the task appeared.
-        data_tests:
-          - not_null
-      - name: task_label
-        description: The label (T for tiebreaker) or number of the task within the episode.
-        data_tests:
-          - not_null
-      - name: is_prize
-        description: Indicates whether the task was a prize task (true/false).
-      - name: is_live
-        description: Indicates whether the task was performed live (true/false).
-      - name: is_tiebreak
-        description: Indicates whether the task was a tiebreaker (true/false).
-      - name: contestant_name
-        description: The name of the contestant who performed the task.
+        description: Kind of series from the source (series or special).
 
   - name: int_tasks_included
-    description: Tasks with excluded series removed. The New Year Treat series are 
-          dropped because the source dataset assigns the same cast (contestants) to all 
-          episodes and tasks. Also, the episodes and tasks are the same across all new 
-          year treat series type, so the data is not useful for analysis.
+    description: "Tasks with excluded series removed. {{ doc('excluded_series') }}"
     columns:
       - name: task_id
-        description: The original ID of the task from the source data.
-        data_tests:
-          - not_null
+        description: Task ID from the source data.
+        data_tests: [unique, not_null]
       - name: series_name
-        description: The name of the series in which the task appeared.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: episode_number
-        description: The number of the episode in which the task appeared.
-        data_tests:
-          - not_null
-      - name: episode_title
-        description: The title of the episode in which the task appeared.
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: task_label
-        description: The label (T for tiebreaker) or number of the task within the episode.
-        data_tests:
-          - not_null
+        description: Task number within the episode, or T for a tiebreak task.
+        data_tests: [not_null]
       - name: is_prize
-        description: Indicates whether the task was a prize task (true/false).
+        description: True for the prize task, which opens the episode and counts toward totals.
       - name: is_live
-        description: Indicates whether the task was performed live (true/false).
+        description: True if the task was performed live.
       - name: is_tiebreak
-        description: Indicates whether the task was a tiebreaker (true/false).
-      - name: task_description
-        description: A brief description of what the task entailed.
+        description: True for a tiebreak task. Tiebreak results are not part of episode totals.
+
+  - name: int_task_points_included
+    description: "Task points with excluded series removed. {{ doc('excluded_series') }}"
+    columns:
+      - name: task_id
+        data_tests: [not_null]
+      - name: series_name
+        data_tests: [not_null]
+      - name: episode_number
+        data_tests: [not_null]
+      - name: contestant_name
+        data_tests: [not_null]
+      - name: task_points
+        description: Score for a normal task; a 1/0 result for a tiebreak task. Null if the contestant did not take part.
+
+  - name: int_episode_contestant_points
+    description: >
+      Official episode points per contestant per episode, unpacked from the episodes file
+      (names and totals are both stored in seat order). Built from int_episodes_included, so
+      excluded series are already removed.
+    columns:
+      - name: series_name
+        data_tests: [not_null]
+      - name: episode_number
+        data_tests: [not_null]
+      - name: contestant_name
+        data_tests: [not_null]
+      - name: contestant_seat_position
+        description: Position of the contestant in the seat-order list (1 to 5).
+        data_tests: [not_null]
+      - name: episode_points
+        description: Official total for the contestant in the episode, as printed in the broadcast tables.
+        data_tests: [not_null]

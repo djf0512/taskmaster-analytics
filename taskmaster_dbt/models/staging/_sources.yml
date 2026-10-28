@@ -2,10 +2,19 @@ version: 2
 
 sources:
   - name: raw
+    description: Source CSVs from silverdavi/taskmaster-uk-scores, loaded by ingestion/load_scores.py.
     schema: raw
+    config:
+      loaded_at_field: _loaded_at
+      freshness:
+        warn_after: {count: 30, period: day}
     tables:
       - name: scores_long
+        description: One row per contestant per task, as published by the source.
       - name: tasks
+        description: One row per task.
       - name: episodes
+        description: One row per episode. Totals are the official broadcast totals, in seat order.
       - name: series
+        description: One row per series, with its kind and air-date range.
 

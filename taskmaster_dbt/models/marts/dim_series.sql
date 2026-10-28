@@ -1,3 +1,4 @@
+-- series_type is derived from the series name
 select 
     {{ series_key('series_name') }} as series_key,
     series_name,

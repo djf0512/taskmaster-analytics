@@ -1,33 +1,39 @@
 # Episode Totals vs. Task Scores
 
-## Table of Contents
+## Finding
 
-- [Observation](#observation)
-- [Interpretation](#interpretation)
-- [Modeling Implications](#modeling-implications)
-- [Potential Next Step](#potential-next-step)
+The episodes file holds the official points per contestant per episode, as printed in the broadcast tables, in seat order. They are not computed from the task scores, so they can differ from the sum of a contestant's task points.
 
-## Observation
+Across the 935 contestant-episodes in the included series (task points exclude tiebreak tasks):
 
-The sum of raw task scores does not always match the episode totals recorded in the source data.
+| Difference (official minus task sum) | Contestant-episodes |
+|---|---|
+| 0 | 715 (76%) |
+| Positive (+1 to +12) | 216 |
+| Negative (-4 to -1) | 4 |
 
-The observed difference is consistent with episode totals including final scores, such as bonus points, that are not attributed to individual tasks in the task-score data.
+That three quarters match exactly supports the counting rule (all tasks count except tiebreaks). Positive differences are consistent with bonus points awarded outside tasks, and negative ones with deductions.
 
-## Interpretation
+The four negative rows:
 
-The two values represent different measures:
+| Series | Episode | Contestant | Difference |
+|---|---|---|---|
+| Series 4 | 3 | Mel Giedroyc | -4 |
+| Series 9 | 8 | Rose Matafeo | -1 |
+| Series 11 | 1 | Sarah Kendall | -1 |
+| Series 18 | 7 | Rosie Jones | -3 |
 
-- **Task-score sum:** The sum of scores recorded against individual tasks.
-- **Episode total:** The final score recorded for an episode, potentially including points awarded outside individual tasks.
+The four negative rows correspond to points deduction awarded in the episodes themselves, so the official totals are lower than the sum of task scores.
 
-A mismatch between these measures is not, by itself, evidence of an error. The measures need to be interpreted according to their respective definitions.
+## Decision
 
-## Modeling Implications
+- Task points stay at task grain in `fct_task_points`.
+- Official points come from the episodes file (`int_episode_contestant_points`) and are stored in `fct_episode_points` next to the task sum.
+- The difference is `episode_adjustment_points`. Series points use the official totals, so series winners follow the broadcast results.
+- `assert_task_points_reconcile_across_facts` checks that task points add up identically at task, episode, and series grain.
 
-Keep the task-score fact table at its intended task-level grain. Do not add episode totals to individual task rows, because doing so would mix measures at different grains and could lead to double counting.
+## Reproduce
 
-If episode-level final scores are needed for analysis, model them separately from task-level scores and document their source and definition.
-
-## Potential Next Step
-
-Consider a separate `fct_episode_score` model if episode-level totals are reliable and useful for planned analyses. Before implementing it, verify the source fields and define the expected grain and relationships to episodes and contestants.
+```sql
+select episode_adjustment_points, count(*) from marts.fct_episode_points group by 1 order by 1;
+```

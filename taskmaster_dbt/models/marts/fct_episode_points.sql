@@ -1,3 +1,5 @@
+-- Grain: one row per contestant per episode.
+-- Spine is the official episode totals; task points are summed from fct_task_points and compared.
 with episode_task_totals as (
 
     select
@@ -5,7 +7,7 @@ with episode_task_totals as (
         episode_key,
         series_key,
         sum(task_points) as episode_task_points,
-        sum(tiebreak_results) as tiebreak_won, --if null, they didn't have a tiebreak, if 0 they lost, if 1 they won
+        sum(tiebreak_results) as tiebreak_won,  -- null: no tiebreak; 0: lost; 1: won
         count(tiebreak_results) as tiebreak_played
     from {{ ref('fct_task_points') }}
     group by contestant_key, episode_key, series_key
@@ -19,7 +21,7 @@ select
     {{ contestant_key('contestant_name') }} as contestant_key,
     contestant_seat_position,
     episode_points
-from {{ ref('int_episode_contestant_points_included') }}
+from {{ ref('int_episode_contestant_points') }}
 
 )
 , combined as (
@@ -31,7 +33,7 @@ select
     e.contestant_seat_position,
     e.episode_points,
     t.episode_task_points,
-    e.episode_points - t.episode_task_points as episode_bonus_points,
+    e.episode_points - t.episode_task_points as episode_adjustment_points,
     t.tiebreak_won,
     t.tiebreak_played
 from episode_contestant_points e

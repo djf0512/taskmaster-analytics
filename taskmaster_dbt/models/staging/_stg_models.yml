@@ -2,25 +2,44 @@ version: 2
 
 models:
   - name: stg_episodes
-    description: One row per episode, with air date and the source's per-contestant totals.
+    description: One row per episode, typed from the raw episodes file. total_1 to total_5 are official totals in seat order, matching the order of names in contestants_raw.
     columns:
+      - name: series_name
+        data_tests: [not_null]
       - name: episode_title
         data_tests: [not_null]
       - name: air_date
+        description: Parsed from air_date_raw. A null here means the date format needs handling.
+        data_tests: [not_null]
+      - name: loaded_at
+        description: When the raw table was loaded (UTC), passed through from the raw layer.
+        data_tests: [not_null]
+      - name: source_commit
+        description: The commit hash of the source data.
         data_tests: [not_null]
 
   - name: stg_series
-    description: One row per series, with air date range and the source's per-contestant totals.
+    description: One row per series, with its kind (series or special), air-date range and episode count.
     columns:
       - name: series_name
         data_tests: [unique, not_null]
+      - name: series_kind
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['series', 'special']
+      - name: loaded_at
+        data_tests: [not_null]
 
   - name: stg_task_points
-    description: One row per contestant per task, cleaned from the raw scores file.
+    description: One row per contestant per task. task_points is a score for normal tasks and a 1/0 result for tiebreak tasks.
     columns:
       - name: task_id
         data_tests: [not_null]
       - name: contestant_name
+        data_tests: [not_null]
+      - name: loaded_at
         data_tests: [not_null]
 
   - name: stg_tasks
@@ -28,4 +47,7 @@ models:
     columns:
       - name: task_id
         data_tests: [unique, not_null]
+      - name: loaded_at
+        data_tests: [not_null]
+
 
